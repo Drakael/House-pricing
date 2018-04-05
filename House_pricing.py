@@ -7,11 +7,9 @@ import pydot
 
 
 from matplotlib import cm
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.svm import SVC
-from sklearn.metrics import make_scorer, explained_variance_score
-from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import make_scorer, explained_variance_score, confusion_matrix
 from sklearn.cross_validation import KFold
 from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import Ridge
@@ -29,9 +27,11 @@ from sklearn.linear_model import ARDRegression
 from sklearn.linear_model import SGDRegressor
 from sklearn.linear_model import PassiveAggressiveRegressor
 from sklearn.linear_model import HuberRegressor
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.preprocessing import PolynomialFeatures
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.ensemble import IsolationForest
 #from sklearn.externals.six import StringIO
 #importlib.import_module('MSIASolver')
 import MSIASolver
@@ -55,7 +55,13 @@ def info_all(df):
         print(df.iloc[:,cnt_init:cnt].info()) 
 
 def na_rows(df):
-    return df.columns[df.isna().any()]   
+    return df.columns[df.isna().any()] 
+
+def null_report(df):
+    total = df.isnull().sum().sort_values(ascending=False)
+    percent = (df.isnull().sum()/df.isnull().count()).sort_values(ascending=False)
+    missing_data = pd.concat([total, percent], axis=1, keys=['Total', 'Percent'])
+    print(missing_data.head(20))
 
 plt.close('all')
 
@@ -602,7 +608,7 @@ mappings['Utilities'] = {
         'AllPub':'All public Utilities (E,G,W,& S)',
         'NoSeWa':'Electricity and Gas Only'
         },
-    'type':'onehot'
+    'type':'num_desc'
     }
 nan_NA = ['Alley','BsmtQual','BsmtCond','BsmtExposure','BsmtFinType1','BsmtFinType2','FireplaceQu','GarageType','GarageFinish','GarageQual','GarageCond','PoolQC','Fence','MiscFeature','MSZoning']
 medians = ['MasVnrArea','BsmtFinSF1','BsmtFinSF2','BsmtUnfSF','TotalBsmtSF','BsmtFullBath','BsmtHalfBath','GarageYrBlt','GarageCars','GarageArea',]
@@ -668,15 +674,74 @@ def clean_data(df, exclude=[], mappings={}, medians=[]):
     #df = df.fillna('NA')
     return df
 
+def isolation_tree(Axis_1,Axis_2,label=None,color=None):
+    data = pd.concat([Axis_1,Axis_2],axis=1).copy()
+#    print('data',type(data),"\n",data)
+#    print('Axis_1 uniques',type(Axis_1),"\n",Axis_1.unique())
+#    print('Axis_2 uniques',type(Axis_2),"\n",Axis_2.unique())
+    clf = IsolationForest(max_samples=100, random_state=0)   
+    clf.fit(data)
+    xx, yy = np.meshgrid(np.linspace(Axis_1.min(), Axis_1.max(), len(Axis_1.unique())), np.linspace(Axis_2.min(), Axis_2.max(), len(Axis_2.unique())))
+    Z = clf.decision_function(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+    plt.contourf(xx, yy, Z, cmap=plt.cm.Blues_r)
+    a = plt.scatter(Axis_1, Axis_2, c='white', s=20, edgecolor='k')
+    plt.axis('tight')
+    plt.xlim((Axis_1.min(), Axis_1.max()))
+    plt.ylim((Axis_2.min(), Axis_2.max()))
+    #print('Axis_1',type(Axis_1),Axis_1.shape,"\n",Axis_1,"\nname",Axis_1.name)
+    #print('Axis_2',type(Axis_2),Axis_2.shape,"\n",Axis_2,"\nname",Axis_2.name)
+    plt.legend([a],
+               [Axis_1.name+' / '+Axis_2.name],
+               loc="upper left")
+    plt.show()
+    
+def pair_grid_visu(data, predict_column):
+    #g = sns.pairplot(visu, hue="Survived", palette="husl")
+    #g = sns.pairplot(visu, hue="Sex", palette="husl")
+    g1 = sns.PairGrid(data, hue=predict_column, palette="husl")
+    g1 = g1.map_diag(plt.hist)
+    g1 = g1.map_upper(plt.scatter)
+    g1 = g1.map_lower(sns.swarmplot)
+    g1 = g1.add_legend()
+    
+    g = sns.PairGrid(data, palette="husl")
+    g = g.map_diag(plt.hist)
+    #g = g.map_offdiag(plt.scatter) 
+    #g = g.map_upper(plt.scatter)
+    g = g.map_upper(isolation_tree)
+    g = g.map_lower(sns.swarmplot)
+    g = g.add_legend()    
+    
+
+
 na_columns = train.columns[train.isna().any()]
 
 train = clean_data(train, mappings=mappings, medians=medians)
 test = clean_data(test, mappings=mappings, medians=medians)
 #sub = clean_data(sub, mappings=mappings, medians=medians)
+ 
+isof = IsolationForest(contamination=0.05, random_state=0)   
+mask_isof = isof.fit(train).predict(train)
+
+train_filtered = train[mask_isof==1]
+
+train = train_filtered
 
 correlations = get_correlations(train, predict_column, 'correlations après clean,')
 
-select = list(correlations.keys()[1:38])
+nb_selected_features = 5
+
+select_visu = list(correlations.keys()[0:nb_selected_features+1])
+visu = train[select_visu].copy()
+
+#isolation_tree(visu['SalePrice'],visu['GrLivArea'])
+
+#pair_grid_visu(visu, predict_column)   
+
+#%%
+
+select = list(correlations.keys()[1:nb_selected_features+1])
 print('empty columns : ',na_rows(train))
 
 
@@ -696,7 +761,7 @@ drops = ['Id','SalePrice']
 y = train[predict_column].copy()
 #X_kaggle = test.drop('Id', axis=1).copy()
 
-
+select = ['OverallQual','GrLivArea','TotalBsmtSF']
 
 X = train[select].copy()
 X_kaggle = test[select].copy()
@@ -704,10 +769,10 @@ X_kaggle = test[select].copy()
 
 #X.to_csv('csv_train_drak.csv')
 
+#%%
 
 scaler = MinMaxScaler()
 scaler.fit(X)
-#%%
   
 
 #étalonnage des valeurs
@@ -735,7 +800,8 @@ names = [
         #'PassiveAggressiveRegressor',
         'HuberRegressor',
         #'MSIASolver',
-        'RandomForestRegressor'
+        'RandomForestRegressor',
+        'GradientBoostingRegressor'
         ]
 classifier = [
         #LinearRegression(),
@@ -755,7 +821,8 @@ classifier = [
         #PassiveAggressiveRegressor(),
         HuberRegressor(),
         #MSIASolver.MSIASolver(),
-        RandomForestRegressor()
+        RandomForestRegressor(),
+        GradientBoostingRegressor()
         ]
 #names = ['MSIASolver']
 #classifier = [MSIASolver.MSIASolver()]
@@ -871,9 +938,18 @@ clf_params['HuberRegressor'] = {
               'epsilon': [1, 1.35, 2, 5],
               'fit_intercept': [False, True]
              }
-clf_params['RandomForestRegressor'] = {'n_estimators': [10, 24, 32],
+clf_params['RandomForestRegressor'] = {
+        'n_estimators': [60, 100, 150],
               'max_features': ['log2', 'sqrt','auto'],
               'criterion': ['mse', 'mae'],
+              #'max_depth': [None, 8, 32, 64],
+              #'min_samples_split': [0.1, 0.2, 0.5, 0.7, 1.0],
+              #'min_samples_leaf': [1,2,5]
+             }
+clf_params['GradientBoostingRegressor'] = {
+        'n_estimators': [60, 100, 150],
+              'loss': ['ls', 'lad','huber','quantile'],
+              #'criterion': ['mse', 'mae'],
               #'max_depth': [None, 8, 32, 64],
               #'min_samples_split': [0.1, 0.2, 0.5, 0.7, 1.0],
               #'min_samples_leaf': [1,2,5]
@@ -920,6 +996,8 @@ print("\n",'Accuracy on test set = ', explained_variance_score(y_test, predictio
 
 #%%
 
+X_train_columns = X_kaggle.columns
+X_kaggle = scaler.transform(X_kaggle)
 #X_kaggle['Utilities_NoSeWa'] = 0
 #création des prédictions sur l'échantillon à tester
 predictions = best_clf.predict(X_kaggle)
@@ -933,12 +1011,10 @@ output.to_csv('Housing_Prices_Kaggle_Sub.csv')
 test['Id'] = Id_test
 test[predict_column] = predictions
 
-X_train_columns = X_kaggle.columns
 if hasattr(best_clf, 'feature_importances_') and hasattr(best_clf, 'estimators_'):
     importances = best_clf.feature_importances_
     #print('importances',"\n",importances)
-    std = np.std([tree.feature_importances_ for tree in best_clf.estimators_],
-                 axis=0)
+    #std = np.std([tree.feature_importances_ for tree in best_clf.estimators_], axis=0)
     indices = np.argsort(importances)[::-1]
     # Print the feature ranking
     print("\n","Feature ranking:")
@@ -948,8 +1024,8 @@ if hasattr(best_clf, 'feature_importances_') and hasattr(best_clf, 'estimators_'
     # Plot the feature importances of the forest
     plt.figure()
     plt.title("Feature importances")
-    plt.bar(range(X_train.shape[1]), importances[indices], color="b", yerr=std[indices], align="center")
-    #plt.bar(range(X_train.shape[1]), importances[indices], color="r", align="center")
+    #plt.bar(range(X_train.shape[1]), importances[indices], color="b", yerr=std[indices], align="center")
+    plt.bar(range(X_train.shape[1]), importances[indices], color="g", align="center")
     plt.xticks(range(X_train.shape[1]), X_train_columns[indices], rotation=45)
     plt.xlim([-1, X_train.shape[1]])
     plt.show()
@@ -990,35 +1066,53 @@ if hasattr(best_clf, 'coef_'):
     plt.xlim([-1, X_train.shape[1]])
     plt.show()
     
-    
-    
-    
-    
-def plot_contourf_axis(clf, X_train, X_test=None, axis_1=0, axis_2=1, predict=None, cmap=plt.cm.Blues_r):
-    # plot the line, the samples, and the nearest vectors to the plane
-    xx, yy = np.meshgrid(np.linspace(X_train[axis_1].min(), X_train[axis_1].max(), len(X_train[axis_1].unique())), np.linspace(X_train[axis_2].min(), X_train[axis_2].max(), len(X_train[axis_2].unique())))
-    print('xx',type(xx),"\n",xx)
-    print('yy',type(yy),"\n",yy)
-    
-    Z = clf.decision_function(np.c_[xx.ravel(), yy.ravel()])
-    Z = Z.reshape(xx.shape)
-    
-    plt.title(axis_1," / ",axis_2)
-    plt.contourf(xx, yy, Z, cmap=cmap)
-    
-    b1 = plt.scatter(X_train[axis_1], X_train[axis_2], c='white',
-                     s=20, edgecolor='k')
-    if X_test is not None:
-        b2 = plt.scatter(X_test[axis_1], X_test[axis_2], c='green',
-                         s=20, edgecolor='k')
-    #c = plt.scatter(X_outliers[:, 0], X_outliers[:, 1], c='red',
-    #                s=20, edgecolor='k')
-    plt.axis('tight')
-    plt.xlim((X_train[axis_1].min(), X_train[axis_1].max()))
-    plt.ylim((X_train[axis_2].min(), X_train[axis_2].max()))
-    plt.legend([b1, b2],
-               [axis_1,axis_2],
-               loc="upper left")
-    plt.show()
-
-    
+#    
+#def plot_confusion_matrix(cm, classes,
+#                          normalize=False,
+#                          title='Confusion matrix',
+#                          cmap=plt.cm.Blues):
+#    """
+#    This function prints and plots the confusion matrix.
+#    Normalization can be applied by setting `normalize=True`.
+#    """
+#    if normalize:
+#        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+#        print("Normalized confusion matrix")
+#    else:
+#        print('Confusion matrix, without normalization')
+#
+#    print(cm)
+#
+#    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+#    plt.title(title)
+#    plt.colorbar()
+#    tick_marks = np.arange(len(classes))
+#    plt.xticks(tick_marks, classes, rotation=45)
+#    plt.yticks(tick_marks, classes)
+#
+#    fmt = '.2f' if normalize else 'd'
+#    thresh = cm.max() / 2.
+#    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+#        plt.text(j, i, format(cm[i, j], fmt),
+#                 horizontalalignment="center",
+#                 color="white" if cm[i, j] > thresh else "black")
+#
+#    plt.tight_layout()
+#    plt.ylabel('True label')
+#    plt.xlabel('Predicted label')
+#
+## Compute confusion matrix
+#cnf_matrix = confusion_matrix(y_test, predictions)
+#np.set_printoptions(precision=2)
+#
+## Plot non-normalized confusion matrix
+#plt.figure()
+#plot_confusion_matrix(cnf_matrix, classes=class_names,
+#                      title='Confusion matrix, without normalization')
+#
+## Plot normalized confusion matrix
+#plt.figure()
+#plot_confusion_matrix(cnf_matrix, classes=class_names, normalize=True,
+#                      title='Normalized confusion matrix')
+#
+#plt.show()
