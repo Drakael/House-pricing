@@ -44,6 +44,19 @@ def p(mess,obj):
     else:
         print(mess,type(obj),"\n",obj)
 
+def info_all(df):
+    cnt = 0
+    max_ = len(df.columns)
+    while cnt<max_:
+        cnt_init = cnt
+        cnt+=15
+        if cnt>max_:
+            cnt=max_
+        print(df.iloc[:,cnt_init:cnt].info()) 
+
+def na_rows(df):
+    return df.columns[df.isna().any()]   
+
 plt.close('all')
 
 train = pd.read_csv('train.csv')
@@ -451,7 +464,8 @@ mappings['MSZoning'] = {
         'RM':'Residential Medium Density',
         'C (all)':'Commercial',
         'FV':'Floating Village Residential',
-        'RH':'Residential High Density'
+        'RH':'Residential High Density',
+        'NA':'Dont know'
         },
     'type':'onehot'
     }
@@ -590,7 +604,7 @@ mappings['Utilities'] = {
         },
     'type':'onehot'
     }
-nan_NA = ['Alley','BsmtQual','BsmtCond','BsmtExposure','BsmtFinType1','BsmtFinType2','FireplaceQu','GarageType','GarageFinish','GarageQual','GarageCond','PoolQC','Fence','MiscFeature']
+nan_NA = ['Alley','BsmtQual','BsmtCond','BsmtExposure','BsmtFinType1','BsmtFinType2','FireplaceQu','GarageType','GarageFinish','GarageQual','GarageCond','PoolQC','Fence','MiscFeature','MSZoning']
 medians = ['MasVnrArea','BsmtFinSF1','BsmtFinSF2','BsmtUnfSF','TotalBsmtSF','BsmtFullBath','BsmtHalfBath','GarageYrBlt','GarageCars','GarageArea',]
 #zeros = ['LotFrontage','MasVnrArea','BsmtFinSF1','BsmtFinSF2','BsmtUnfSF','TotalBsmtSF','BsmtFullBath','BsmtHalfBath','GarageYrBlt','GarageCars','GarageArea',]
 def clean_lot_frontage(df):
@@ -662,7 +676,10 @@ test = clean_data(test, mappings=mappings, medians=medians)
 
 correlations = get_correlations(train, predict_column, 'correlations après clean,')
 
-select = list(correlations.keys()[1:20])
+select = list(correlations.keys()[1:38])
+print('empty columns : ',na_rows(train))
+
+
 
 #for var in select:
 #    data = pd.concat([train[predict_column], train[var]], axis=1)
@@ -678,6 +695,8 @@ drops = ['Id','SalePrice']
 #X = train.drop(drops, axis=1).copy()
 y = train[predict_column].copy()
 #X_kaggle = test.drop('Id', axis=1).copy()
+
+
 
 X = train[select].copy()
 X_kaggle = test[select].copy()
@@ -715,6 +734,7 @@ names = [
         'SGDRegressor',
         #'PassiveAggressiveRegressor',
         'HuberRegressor',
+        #'MSIASolver',
         'RandomForestRegressor'
         ]
 classifier = [
@@ -734,6 +754,7 @@ classifier = [
         SGDRegressor(),
         #PassiveAggressiveRegressor(),
         HuberRegressor(),
+        #MSIASolver.MSIASolver(),
         RandomForestRegressor()
         ]
 #names = ['MSIASolver']
@@ -850,12 +871,12 @@ clf_params['HuberRegressor'] = {
               'epsilon': [1, 1.35, 2, 5],
               'fit_intercept': [False, True]
              }
-clf_params['RandomForestRegressor'] = {'n_estimators': [4, 6, 9],
+clf_params['RandomForestRegressor'] = {'n_estimators': [10, 24, 32],
               'max_features': ['log2', 'sqrt','auto'],
               'criterion': ['mse', 'mae'],
-              'max_depth': [2, 3, 5, 10],
-              'min_samples_split': [0.1, 0.25, 0.5, 0.75, 1.0],
-              'min_samples_leaf': [1,5,8]
+              #'max_depth': [None, 8, 32, 64],
+              #'min_samples_split': [0.1, 0.2, 0.5, 0.7, 1.0],
+              #'min_samples_leaf': [1,2,5]
              }
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
@@ -906,7 +927,7 @@ predictions = best_clf.predict(X_kaggle)
 #création du tableau de sortie pour Kaggle
 output = pd.DataFrame({ 'Id' : Id_test, predict_column: predictions })
 output = output.set_index('Id')
-#output.to_csv('data.csv')
+output.to_csv('Housing_Prices_Kaggle_Sub.csv')
 
 #hack pour l'affichage
 test['Id'] = Id_test
