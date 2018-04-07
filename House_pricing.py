@@ -9,7 +9,7 @@ import pydot
 from matplotlib import cm
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.svm import SVC
-from sklearn.metrics import make_scorer, explained_variance_score, confusion_matrix
+from sklearn.metrics import make_scorer, explained_variance_score, confusion_matrix, mean_squared_error
 from sklearn.cross_validation import KFold
 from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import Ridge
@@ -32,6 +32,7 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.ensemble import IsolationForest
+from sklearn.decomposition import PCA
 #from sklearn.externals.six import StringIO
 #importlib.import_module('MSIASolver')
 import MSIASolver
@@ -61,7 +62,21 @@ def null_report(df):
     total = df.isnull().sum().sort_values(ascending=False)
     percent = (df.isnull().sum()/df.isnull().count()).sort_values(ascending=False)
     missing_data = pd.concat([total, percent], axis=1, keys=['Total', 'Percent'])
-    print(missing_data.head(20))
+    print('Missing Data\n',missing_data.head(20))
+
+def pca_analysis(df, n_comp = 20):
+    print('\nRunning PCA ...')
+    pca = PCA(n_components=n_comp, svd_solver='full', random_state=1001)
+    df_pca = pca.fit_transform(df)
+    p('df_pca',df_pca)
+    print('Explained variance: %.4f' % pca.explained_variance_ratio_.sum())
+    
+    print('Individual variance contributions:')
+    print('noise:',pca.noise_variance_)
+    for j in range(pca.n_components_):
+        print('ratio',pca.explained_variance_ratio_[j],'var',pca.explained_variance_[j],'val',pca.singular_values_[j],'mean',pca.mean_[j])
+    print(np.mean(pca.get_covariance(),axis=1))
+    print('columns',df.columns)
 
 plt.close('all')
 
@@ -107,7 +122,7 @@ mappings['BldgType'] = {
         'TwnhsE':'Townhouse End Unit',
         'Twnhs':'Townhouse Inside Unit'
         },
-    'type':'onehot'
+    'type':'num_desc'
     }
 mappings['BsmtCond'] = {
     'values':{
@@ -473,7 +488,7 @@ mappings['MSZoning'] = {
         'RH':'Residential High Density',
         'NA':'Dont know'
         },
-    'type':'onehot'
+    'type':'num_desc'
     }
     
 mappings['MasVnrType'] = {
@@ -511,7 +526,7 @@ mappings['Neighborhood'] = {
         'IDOTRR':'Iowa DOT and Rail Road',
         'MeadowV':'Meadow Village',
         'Mitchel':'Mitchell',
-        'Names':'North Ames',
+        'NAmes':'North Ames',
         'NoRidge':'Northridge',
         'NPkVill':'Northpark Villa',
         'NridgHt':'Northridge Heights',
@@ -643,7 +658,11 @@ def clean_nan_functional(df):
     df['Functional'] = df['Functional'].fillna('Mod')
     return df
 
-def clean_data(df, exclude=[], mappings={}, medians=[]):
+def clean_nan_utilities(df):
+    df['Utilities'] = df['Utilities'].fillna('AllPub')
+    return df
+
+def clean_data(df, exclude=[], mappings={}, medians=[],all_num=False):
     df = clean_lot_frontage(df)
     df = clean_nan_saletype(df)
     df = clean_nan_masvnrtype(df)
@@ -651,6 +670,7 @@ def clean_data(df, exclude=[], mappings={}, medians=[]):
     df = clean_nan_exterior(df)
     df = clean_nan_kitchen_quality(df)
     df = clean_nan_functional(df)
+    df = clean_nan_utilities(df)
     columns = df.columns
     for col in nan_NA:
         df[col] = df[col].fillna('NA')
@@ -658,7 +678,7 @@ def clean_data(df, exclude=[], mappings={}, medians=[]):
         col_type = df[col].dtype
         if col_type == 'object' and col in mappings:
             #p(col+' unique',unique)
-            if mappings[col]['type'] == 'num_desc':
+            if mappings[col]['type'] == 'num_desc' or all_num == True:
                 map_array = list(mappings[col]['values'].keys())
                 to_map = dict(zip(map_array[::-1],range(len(map_array))))
                 df[col] = df[col].map(to_map)
@@ -715,71 +735,64 @@ def pair_grid_visu(data, predict_column):
     
 
 
-na_columns = train.columns[train.isna().any()]
+select = ['OverallQual','GrLivArea','TotalBsmtSF']
+#select = ['GrLivArea','OverallQual']
+drops = ['Id','SalePrice']
 
-train = clean_data(train, mappings=mappings, medians=medians)
+
+train = clean_data(train, mappings=mappings, medians=medians)#, all_num=True)
 test = clean_data(test, mappings=mappings, medians=medians)
 #sub = clean_data(sub, mappings=mappings, medians=medians)
- 
-isof = IsolationForest(contamination=0.05, random_state=0)   
-mask_isof = isof.fit(train).predict(train)
 
-train_filtered = train[mask_isof==1]
+#retrait d'outliers
+train = train[train['GrLivArea'] < 4600]
+train = train[train['GarageArea'] < 1200]
+train = train[train['TotalBsmtSF'] < 6000]
+train = train[train['1stFlrSF'] < 4000]
 
-train = train_filtered
+#isof = IsolationForest(contamination=0.05, random_state=0)   
+#mask_isof = isof.fit(train[select]).predict(train[select])
+#train_filtered = train[mask_isof==1]
+#train = train_filtered
 
 correlations = get_correlations(train, predict_column, 'correlations après clean,')
 
-nb_selected_features = 5
-
-select_visu = list(correlations.keys()[0:nb_selected_features+1])
-visu = train[select_visu].copy()
-
+nb_selected_features = 78
+#select_visu = list(correlations.keys()[0:nb_selected_features+1])
+#visu = train[select_visu].copy()
 #isolation_tree(visu['SalePrice'],visu['GrLivArea'])
-
 #pair_grid_visu(visu, predict_column)   
 
-#%%
 
-select = list(correlations.keys()[1:nb_selected_features+1])
 print('empty columns : ',na_rows(train))
-
-
 
 #for var in select:
 #    data = pd.concat([train[predict_column], train[var]], axis=1)
 #    data.plot.scatter(x=var, y=predict_column, ylim=(0,800000));
 
-
 #création des tableaux d'entrainement et de cible, des tableaux de validation intermédiaire et le tableau à prédire au final
-print('selected columns : ',select)
-drops = ['Id','SalePrice']
+select = list(correlations.keys()[1:nb_selected_features+1])
+#print('selected columns : ',select)
 #X = train.drop(drops, axis=1).iloc[:,1:].copy()
 #X = train[select].copy()
 
 #X = train.drop(drops, axis=1).copy()
 y = train[predict_column].copy()
 #X_kaggle = test.drop('Id', axis=1).copy()
+#all_data = X.append(X_kaggle)
 
-select = ['OverallQual','GrLivArea','TotalBsmtSF']
 
 X = train[select].copy()
 X_kaggle = test[select].copy()
 
-
-#X.to_csv('csv_train_drak.csv')
+print('X.shape',X.shape)
+print('X_kaggle.shape',X_kaggle.shape)
 
 #%%
 
 scaler = MinMaxScaler()
 scaler.fit(X)
-  
 
-#étalonnage des valeurs
-#scaler = MinMaxScaler()
-#scaler.fit(X)
-#X = scaler.transform(X)
-#X_kaggle = scaler.transform(X_kaggle)
 
 rng = np.random.randint(100)
 names = [
@@ -826,8 +839,8 @@ classifier = [
         ]
 #names = ['MSIASolver']
 #classifier = [MSIASolver.MSIASolver()]
-#names = ['Logistic Regression']
-#classifier = [LogisticRegression(C=3)]
+names = ['GradientBoostingRegressor']
+classifier = [GradientBoostingRegressor()]
 
 #fonction de cross_validation
 best_clf = None
@@ -838,7 +851,7 @@ idx = 0
 
 clf_results = pd.DataFrame(index=range(len(classifier)), columns=['name','score'])
 def run_kfold(X, y, clf, name, best_clf, best_score, best_clf_name, clf_results, scaler):
-    kf = KFold(len(X), n_folds=10)
+    kf = KFold(len(X), n_folds=15)
     outcomes = []
     fold = 0
     for train_index, test_index in kf:
@@ -849,9 +862,10 @@ def run_kfold(X, y, clf, name, best_clf, best_score, best_clf_name, clf_results,
         X_test = scaler.transform(X_test)
         clf.fit(X_train, y_train)
         predictions = clf.predict(X_test)
-        accuracy = explained_variance_score(y_test, predictions)
+        #accuracy = explained_variance_score(y_test, predictions)
+        accuracy = clf.score(X_test, y_test)
         outcomes.append(accuracy)
-        print(name, " - Fold {0} accuracy: {1}".format(fold, accuracy))
+        print(name, " - Fold {0} accuracy: {1}".format(fold, accuracy),' RMSE : ',mean_squared_error(y_test, predictions))
     mean_outcome = np.mean(outcomes)
     std_outcome = np.std(outcomes)
     print("\n",name," - Mean Accuracy: {0}".format(mean_outcome),' +/- ',std_outcome)
@@ -961,8 +975,11 @@ acc_scorer = make_scorer(explained_variance_score)
 # Run the grid search
 grid_obj = GridSearchCV(best_clf, clf_params[best_clf_name], scoring=acc_scorer)
 
+
 X_train = scaler.transform(X_train)
 X_test = scaler.transform(X_test)
+X_train_columns = X_kaggle.columns
+X_kaggle = scaler.transform(X_kaggle)  
 
 grid_obj = grid_obj.fit(X_train, y_train)
 # Set the clf to the best combination of parameters
@@ -990,14 +1007,10 @@ print("\n",'Accuracy on test set = ', explained_variance_score(y_test, predictio
 #        cnt=max_
 #    print(X_kaggle.iloc[:,cnt_init:cnt].info()) 
  
-#na_columns = X_kaggle.columns[X_kaggle.isna().any()]    
-#    
-#print('na_columns',na_columns)
 
-#%%
+print('X.shape',X.shape)
+print('X_kaggle.shape',X_kaggle.shape)
 
-X_train_columns = X_kaggle.columns
-X_kaggle = scaler.transform(X_kaggle)
 #X_kaggle['Utilities_NoSeWa'] = 0
 #création des prédictions sur l'échantillon à tester
 predictions = best_clf.predict(X_kaggle)
