@@ -117,10 +117,10 @@ mappings['Alley'] = {
 mappings['BldgType'] = {
     'values':{
         '1Fam':'Single-family Detached',
-        '2fmCon':'Two-family Conversion; originally built as one-family dwelling',
-        'Duplex':'Duplex',
         'TwnhsE':'Townhouse End Unit',
-        'Twnhs':'Townhouse Inside Unit'
+        'Twnhs':'Townhouse Inside Unit',
+        'Duplex':'Duplex',
+        '2fmCon':'Two-family Conversion; originally built as one-family dwelling'
         },
     'type':'num_desc'
     }
@@ -129,9 +129,9 @@ mappings['BsmtCond'] = {
         'Ex':'Excellent',
         'Gd':'Good',
         'TA':'Typical - slight dampness allowed',
+        'NA':'No Basement',
         'Fa':'Fair - dampness or some cracking or settling',
-        'Po':'Poor - Severe cracking, settling, or wetness',
-        'NA':'No Basement'
+        'Po':'Poor - Severe cracking, settling, or wetness'
         },
     'type':'num_desc'
     }
@@ -139,8 +139,8 @@ mappings['BsmtExposure'] = {
     'values':{
         'Gd':'Good Exposure',
         'Av':'Average Exposure',
-        'Mn':'Mimimum Exposure',
         'No':'No Exposure',
+        'Mn':'Mimimum Exposure',
         'NA':'No Basement'
         },
     'type':'num_desc'
@@ -148,23 +148,23 @@ mappings['BsmtExposure'] = {
 mappings['BsmtFinType1'] = {
     'values':{
         'GLQ':'Good Living Quarters',
+        'Unf':'Unfinished',
         'ALQ':'Average Living Quarters',
-        'BLQ':'Below Average Living Quarters',
         'Rec':'Average Rec Room',
         'LwQ':'Low Quality',
-        'Unf':'Unfinished',
+        'BLQ':'Below Average Living Quarters',
         'NA':'No Basement'
         },
     'type':'num_desc'
     }
 mappings['BsmtFinType2'] = {
     'values':{
-        'GLQ':'Good Living Quarters',
+        'Unf':'Unfinished',
         'ALQ':'Average Living Quarters',
-        'BLQ':'Below Average Living Quarters',
+        'GLQ':'Good Living Quarters',
         'Rec':'Average Rec Room',
         'LwQ':'Low Quality',
-        'Unf':'Unfinished',
+        'BLQ':'Below Average Living Quarters',
         'NA':'No Basement'
         },
     'type':'num_desc'
@@ -189,15 +189,15 @@ mappings['CentralAir'] = {
     }
 mappings['Condition1'] = {
     'values':{
-        'Artery':'Adjacent to arterial street',
-        'Feedr':'Adjacent to feeder street',
         'Norm':'Normal',
         'RRNn':'Within 200\' of North-South Railroad',
         'RRAn':'Adjacent to North-South Railroad',
         'PosN':'Near positive off-site feature--park, greenbelt, etc.',
         'PosA':'Adjacent to postive off-site feature',
         'RRNe':'Within 200\' of East-West Railroad',
-        'RRAe':'Adjacent to East-West Railroad'
+        'RRAe':'Adjacent to East-West Railroad',
+        'Feedr':'Adjacent to feeder street',
+        'Artery':'Adjacent to arterial street'
         },
     'type':'num_desc'
     }
@@ -220,8 +220,8 @@ mappings['Electrical'] = {
         'SBrkr':'Standard Circuit Breakers & Romex',
         'FuseA':'Fuse Box over 60 AMP and all Romex wiring (Average)',
         'FuseF':'60 AMP Fuse Box and mostly Romex wiring (Fair)',
-        'FuseP':'60 AMP Fuse Box and mostly knob & tube wiring (poor)',
-        'Mix':'Mixed'
+        'Mix':'Mixed',
+        'FuseP':'60 AMP Fuse Box and mostly knob & tube wiring (poor)'
         },
     'type':'num_desc'
     }
@@ -246,55 +246,55 @@ mappings['ExterQual'] = {
     }
 mappings['Exterior1st'] = {
     'values':{
-        'AsbShng':'Asbestos Shingles',
-        'AsphShn':'Asphalt Shingles',
-        'BrkComm':'Brick Common',
-        'BrkFace':'Brick Face',
-        'CBlock':'Cinder Block',
-        'CemntBd':'Cement Board',
-        'HdBoard':'Hard Board',
         'ImStucc':'Imitation Stucco',
-        'MetalSd':'Metal Siding',
-        'Other':'Other',
-        'Plywood':'Plywood',
-        'PreCast':'PreCast',
         'Stone':'Stone',
-        'Stucco':'Stucco',
         'VinylSd':'Vinyl Siding',
         'Wd Sdng':'Wood Siding',
-        'WdShing':'Wood Shingles'
+        'CemntBd':'Cement Board',
+        'BrkFace':'Brick Face',
+        'MetalSd':'Metal Siding',
+        'Plywood':'Plywood',
+        'HdBoard':'Hard Board',
+        'Stucco':'Stucco',
+        'WdShing':'Wood Shingles',
+        'AsbShng':'Asbestos Shingles',
+        'CBlock':'Cinder Block',
+        'AsphShn':'Asphalt Shingles',
+        'BrkComm':'Brick Common',
+        'Other':'Other',
+        'PreCast':'PreCast'
         },
     'type':'num_desc'
     }
 mappings['Exterior2nd'] = {
     'values':{
-        'AsbShng':'Asbestos Shingles',
-        'AsphShn':'Asphalt Shingles',
-        'Brk Cmn':'Brick Common',
-        'BrkFace':'Brick Face',
-        'CBlock':'Cinder Block',
+        'VinylSd':'Vinyl Siding',
         'CmentBd':'Cement Board',
+        'BrkFace':'Brick Face',
+        'MetalSd':'Metal Siding',
+        'Wd Sdng':'Wood Siding',
+        'Plywood':'Plywood',
         'HdBoard':'Hard Board',
         'ImStucc':'Imitation Stucco',
-        'MetalSd':'Metal Siding',
         'Other':'Other',
-        'Plywood':'Plywood',
-        'PreCast':'PreCast',
-        'Stone':'Stone',
         'Stucco':'Stucco',
-        'VinylSd':'Vinyl Siding',
-        'Wd Sdng':'Wood Siding',
-        'Wd Shng':'Wood Shingles'
+        'Wd Shng':'Wood Shingles',
+        'Stone':'Stone',
+        'AsphShn':'Asphalt Shingles',
+        'CBlock':'Cinder Block',
+        'AsbShng':'Asbestos Shingles',
+        'Brk Cmn':'Brick Common',
+        'PreCast':'PreCast'
         },
     'type':'num_desc'
     }
 mappings['Fence'] = {
     'values':{
+        'NA':'No Fence',
+        'GdWo':'Good Wood',
         'GdPrv':'Good Privacy',
         'MnPrv':'Minimum Privacy',
-        'GdWo':'Good Wood',
-        'MnWw':'Minimum Wood/Wire',
-        'NA':'No Fence'
+        'MnWw':'Minimum Wood/Wire'
         },
     'type':'num_desc'
     }
@@ -311,33 +311,33 @@ mappings['FireplaceQu'] = {
     }
 mappings['Foundation'] = {
     'values':{
-        'BrkTil':'Brick & Tile',
-        'CBlock':'Cinder Block',
         'PConc':'Poured Contrete',
-        'Slab':'Slab',
+        'CBlock':'Cinder Block',
+        'Wood':'Wood',
         'Stone':'Stone',
-        'Wood':'Wood'
+        'Slab':'Slab',
+        'BrkTil':'Brick & Tile'
         },
     'type':'num_desc'
     }
 mappings['Functional'] = {
     'values':{
         'Typ':'Typical Functionality',
+        'Maj1':'Major Deductions 1',
         'Min1':'Minor Deductions 1',
         'Min2':'Minor Deductions 2',
         'Mod':'Moderate Deductions',
-        'Maj1':'Major Deductions 1',
         'Maj2':'Major Deductions 2',
-        'Sev':'Severely Damaged',
-        'Sal':'Salvage only'
+        'Sal':'Salvage only',
+        'Sev':'Severely Damaged'
         },
     'type':'num_desc'
     }
 mappings['GarageCond'] = {
     'values':{
-        'Ex':'Excellent',
-        'Gd':'Good',
         'TA':'Typical/Average',
+        'Gd':'Good',
+        'Ex':'Excellent',
         'Fa':'Fair',
         'Po':'Poor',
         'NA':'No Garage'
@@ -366,11 +366,11 @@ mappings['GarageQual'] = {
     }
 mappings['GarageType'] = {
     'values':{
-        '2Types':'More than one type of garage',
         'BuiltIn':'Built-In (Garage part of house - typically has room above garage)',
-        'Basment':'Basement Garage',
         'Attchd':'Attached to home',
         'Detchd':'Detached from home',
+        'Basment':'Basement Garage',
+        '2Types':'More than one type of garage',
         'CarPort':'Car Port',
         'NA':'No Garage'
         },
@@ -378,12 +378,12 @@ mappings['GarageType'] = {
     }
 mappings['Heating'] = {
     'values':{
-        'Floor':'Floor Furnace',
         'GasA':'Gas forced warm air furnace',
         'GasW':'Gas hot water or steam heat',
-        'Grav':'Gravity furnace',
         'OthW':'Hot water or steam heat other than gas',
-        'Wall':'Wall furnace'
+        'Grav':'Gravity furnace',
+        'Wall':'Wall furnace',
+        'Floor':'Floor Furnace'
         },
     'type':'num_desc'
     }
@@ -399,14 +399,14 @@ mappings['HeatingQC'] = {
     }
 mappings['HouseStyle'] = {
     'values':{
+        '2Story':'Two story',
+        '1Story':'One story',
+        '1.5Fin':'One and one-half story: 2nd level finished',
         '2.5Fin':'Two and one-half story: 2nd level finished',
         '2.5Unf':'Two and one-half story: 2nd level unfinished',
-        '2Story':'Two story',
-        '1.5Fin':'One and one-half story: 2nd level finished',
-        '1.5Unf':'One and one-half story: 2nd level unfinished',
-        'SFoyer':'Split Foyer',
         'SLvl':'Split Level',
-        '1Story':'One story'
+        'SFoyer':'Split Foyer',
+        '1.5Unf':'One and one-half story: 2nd level unfinished'
         },
     'type':'num_desc'
     }
@@ -423,9 +423,9 @@ mappings['KitchenQual'] = {
 mappings['LandContour'] = {
     'values':{
         'Lvl':'Near Flat/Level',
-        'Bnk':'Banked - Quick and significant rise from street grade to building',
         'HLS':'Hillside - Significant slope from side to side',
-        'Low':'Depression'
+        'Low':'Depression',
+        'Bnk':'Banked - Quick and significant rise from street grade to building'
         },
     'type':'num_desc'
     }
@@ -459,22 +459,22 @@ mappings['LotShape'] = {
     
 mappings['MSSubClass'] = {
     'values':{
-        '20':'1-STORY 1946 & NEWER ALL STYLES',
-        '30':'1-STORY 1945 & OLDER',
+        '80':'SPLIT OR MULTI-LEVEL',
+        '180':'PUD - MULTILEVEL - INCL SPLIT LEV/FOYER',
+        '90':'DUPLEX - ALL STYLES AND AGES',
+        '190':'2 FAMILY CONVERSION - ALL STYLES AND AGES',
+        '120':'1-STORY PUD (Planned Unit Development) - 1946 & NEWER',
         '40':'1-STORY W/FINISHED ATTIC ALL AGES',
         '45':'1-1/2 STORY - UNFINISHED ALL AGES',
         '50':'1-1/2 STORY FINISHED ALL AGES',
         '60':'2-STORY 1946 & NEWER',
         '70':'2-STORY 1945 & OLDER',
         '75':'2-1/2 STORY ALL AGES',
-        '80':'SPLIT OR MULTI-LEVEL',
         '85':'SPLIT FOYER',
-        '90':'DUPLEX - ALL STYLES AND AGES',
-        '120':'1-STORY PUD (Planned Unit Development) - 1946 & NEWER',
         '150':'1-1/2 STORY PUD - ALL AGES',
         '160':'2-STORY PUD - 1946 & NEWER',
-        '180':'PUD - MULTILEVEL - INCL SPLIT LEV/FOYER',
-        '190':'2 FAMILY CONVERSION - ALL STYLES AND AGES'
+        '20':'1-STORY 1946 & NEWER ALL STYLES',
+        '30':'1-STORY 1945 & OLDER'
         },
     'type':'num_desc'
     }
@@ -482,10 +482,10 @@ mappings['MSSubClass'] = {
 mappings['MSZoning'] = {
     'values':{
         'RL':'Residential Low density',
-        'RM':'Residential Medium Density',
-        'C (all)':'Commercial',
         'FV':'Floating Village Residential',
+        'RM':'Residential Medium Density',
         'RH':'Residential High Density',
+        'C (all)':'Commercial',
         'NA':'Dont know'
         },
     'type':'num_desc'
@@ -494,10 +494,10 @@ mappings['MSZoning'] = {
 mappings['MasVnrType'] = {
     'values':{
         'Stone':'Stone',
-        'BrkCmn':'Brick Common',
         'BrkFace':'Brick Face',
-        'CBlock':'Cinder Block',
-        'None':'None'
+        'None':'None',
+        'BrkCmn':'Brick Common',
+        'CBlock':'Cinder Block'
         },
     'type':'num_desc'
     }
@@ -514,33 +514,33 @@ mappings['MiscFeature'] = {
     }
 mappings['Neighborhood'] = {
     'values':{
-        'Blmngtn':'Bloomington Heights',
-        'Blueste':'Bluestem',
-        'BrDale':'Briardale',
-        'BrkSide':'Brookside',
-        'ClearCr':'Clear Creek',
-        'CollgCr':'College Creek',
-        'Crawfor':'Crawford',
-        'Edwards':'Edwards',
-        'Gilbert':'Gilbert',
-        'IDOTRR':'Iowa DOT and Rail Road',
-        'MeadowV':'Meadow Village',
-        'Mitchel':'Mitchell',
-        'NAmes':'North Ames',
         'NoRidge':'Northridge',
-        'NPkVill':'Northpark Villa',
         'NridgHt':'Northridge Heights',
-        'NWAmes':'Northwest Ames',
-        'OldTown':'Old Town',
-        'SWISU':'South & West of Iowa State University',
-        'Sawyer':'Sawyer',
-        'SawyerW':'Sawyer West',
-        'Somerst':'Somerset',
         'StoneBr':'Stone Brook',
         'Timber':'Timberland',
-        'Veenker':'Veenker'
+        'Somerst':'Somerset',
+        'Veenker':'Veenker',
+        'CollgCr':'College Creek',
+        'Crawfor':'Crawford',
+        'Gilbert':'Gilbert',
+        'NWAmes':'Northwest Ames',
+        'Blmngtn':'Bloomington Heights',
+        'ClearCr':'Clear Creek',
+        'SawyerW':'Sawyer West',
+        'NAmes':'North Ames',
+        'Edwards':'Edwards',
+        'Mitchel':'Mitchell',
+        'BrkSide':'Brookside',
+        'SWISU':'South & West of Iowa State University',
+        'NPkVill':'Northpark Villa',
+        'Sawyer':'Sawyer',
+        'OldTown':'Old Town',
+        'IDOTRR':'Iowa DOT and Rail Road',
+        'MeadowV':'Meadow Village',
+        'Blueste':'Bluestem',
+        'BrDale':'Briardale'
         },
-    'type':'onehot'
+    'type':'num_desc'
     }
     
 mappings['PavedDrive'] = {
@@ -562,52 +562,52 @@ mappings['PoolQC'] = {
     }
 mappings['RoofMatl'] = {
     'values':{
-        'ClyTile':'Clay or Tile',
         'CompShg':'Standard (Composite) Shingle',
-        'Membran':'Membrane',
+        'WdShake':'Wood Shakes',
+        'WdShngl':'Wood Shingles',
+        'Tar&Grv':'Gravel & Tar',
         'Metal':'Metal',
         'Roll':'Roll',
-        'Tar&Grv':'Gravel & Tar',
-        'WdShake':'Wood Shakes',
-        'WdShngl':'Wood Shingles'
+        'ClyTile':'Clay or Tile',
+        'Membran':'Membrane'
         },
     'type':'num_desc'
     }
 mappings['RoofStyle'] = {
     'values':{
-        'Flat':'Flat',
-        'Gable':'Gable',
-        'Gambrel':'Gabrel (Barn)',
         'Hip':'Hip',
+        'Gable':'Gable',
+        'Shed':'Shed',
         'Mansard':'Mansard',
-        'Shed':'Shed'
+        'Flat':'Flat',
+        'Gambrel':'Gabrel (Barn)'
         },
     'type':'num_desc'
     }
     
 mappings['SaleCondition'] = {
     'values':{
+        'Partial':'Home was not completed when last assessed (associated with New Homes)',
         'Normal':'Normal Sale',
-        'Abnorml':'Abnormal Sale -  trade, foreclosure, short sale',
-        'AdjLand':'Adjoining Land Purchase',
         'Alloca':'Allocation - two linked properties with separate deeds, typically condo with a garage unit',
+        'Abnorml':'Abnormal Sale -  trade, foreclosure, short sale',
         'Family':'Sale between family members',
-        'Partial':'Home was not completed when last assessed (associated with New Homes)'
+        'AdjLand':'Adjoining Land Purchase'
         },
     'type':'num_desc'
     }
 mappings['SaleType'] = {
     'values':{
-        'WD':'Warranty Deed - Conventional',
-        'CWD':'Warranty Deed - Cash',
-        'VWD':'Warranty Deed - VA Loan',
         'New':'Home just constructed and sold',
-        'COD':'Court Officer Deed/Estate',
-        'Con':'Contract 15% Down payment regular terms',
-        'ConLw':'Contract Low Down payment and low interest',
+        'WD':'Warranty Deed - Conventional',
         'ConLI':'Contract Low Interest',
+        'Con':'Contract 15% Down payment regular terms',
+        'CWD':'Warranty Deed - Cash',
         'ConLD':'Contract Low Down',
-        'Oth':'Other'
+        'COD':'Court Officer Deed/Estate',
+        'ConLw':'Contract Low Down payment and low interest',
+        'Oth':'Other',
+        'VWD':'Warranty Deed - VA Loan'
         },
     'type':'num_desc'
     }
@@ -733,11 +733,27 @@ def pair_grid_visu(data, predict_column):
     g = g.map_lower(sns.swarmplot)
     g = g.add_legend()    
     
+def plot_scatter(df, axis_1, axis_2):
+    plt.figure()
+    plt.scatter(x=df[axis_1], y=df[axis_2])
+    plt.xlabel(axis_1)
+    plt.ylabel(axis_2)
+    plt.show()
+    
+def plot_most_important(df, corr, axis, nb, start=1):
+    p('corr',corr)
+    p('axis',axis)
+    for i in range(start, start+nb):
+        plot_scatter(df, corr.keys()[i], axis)
+        #    data = pd.concat([train[predict_column], train[var]], axis=1)
+#    data.plot.scatter(x=var, y=predict_column, ylim=(0,800000));
+    
 
 
 select = ['OverallQual','GrLivArea','TotalBsmtSF']
 #select = ['GrLivArea','OverallQual']
 drops = ['Id','SalePrice']
+drops2 = ['Id','MiscFeature','MoSold','LowQualFinSF','3SsnPorch','MSSubClass','PoolArea','MiscVal','Utilities','YrSold','Alley','LotFrontage','Condition2']
 
 
 train = clean_data(train, mappings=mappings, medians=medians)#, all_num=True)
@@ -749,15 +765,36 @@ train = train[train['GrLivArea'] < 4600]
 train = train[train['GarageArea'] < 1200]
 train = train[train['TotalBsmtSF'] < 6000]
 train = train[train['1stFlrSF'] < 4000]
+train = train[train['SalePrice'] < 600000]
+train = train[train['TotRmsAbvGrd'] < 14]
+train = train[train['YearBuilt'] > 1895]
+#train = train[train['MasVnrArea'] < 1200]
+#train = train[train['WoodDeckSF'] < 700]
+#train = train[train['LotArea'] < 35000]
+#train = train[train['OpenPorchSF'] < 400]
+#train = train[train['EnclosedPorch'] < 400]
+
+#train = train[train['GarageCars'] < 4]
+#train = train[train['GarageArea'] > 0]
+#train = train[train['Fireplaces'] < 3]
+#train = train[train['HalfBath'] < 2]
+#train = train[train['LotArea'] < 100000]
+#train = train[train['Exterior1sd'] != 'Wd Sdng']
+#train = train[train['Exterior2nd'] != 'Other']
 
 #isof = IsolationForest(contamination=0.05, random_state=0)   
 #mask_isof = isof.fit(train[select]).predict(train[select])
 #train_filtered = train[mask_isof==1]
 #train = train_filtered
 
-correlations = get_correlations(train, predict_column, 'correlations après clean,')
+correlations = get_correlations(train.drop(drops2,axis=1), predict_column, 'correlations après clean,')
 
-nb_selected_features = 78
+nb_selected_features = 80
+
+#plot_most_important(train, correlations, predict_column, 19, 72)
+#plot_scatter(train,'Neighborhood',predict_column)
+
+
 #select_visu = list(correlations.keys()[0:nb_selected_features+1])
 #visu = train[select_visu].copy()
 #isolation_tree(visu['SalePrice'],visu['GrLivArea'])
@@ -772,7 +809,8 @@ print('empty columns : ',na_rows(train))
 
 #création des tableaux d'entrainement et de cible, des tableaux de validation intermédiaire et le tableau à prédire au final
 select = list(correlations.keys()[1:nb_selected_features+1])
-#print('selected columns : ',select)
+#select = ['GrLivArea','TotalBsmtSF','GarageArea','OverallQual','KitchenQual','YearRemodAdd']
+print('selected columns : ',select)
 #X = train.drop(drops, axis=1).iloc[:,1:].copy()
 #X = train[select].copy()
 
@@ -961,7 +999,7 @@ clf_params['RandomForestRegressor'] = {
               #'min_samples_leaf': [1,2,5]
              }
 clf_params['GradientBoostingRegressor'] = {
-        'n_estimators': [60, 100, 150],
+        'n_estimators': [100, 150,300],
               'loss': ['ls', 'lad','huber','quantile'],
               #'criterion': ['mse', 'mae'],
               #'max_depth': [None, 8, 32, 64],
@@ -969,7 +1007,7 @@ clf_params['GradientBoostingRegressor'] = {
               #'min_samples_leaf': [1,2,5]
              }
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=0)
 # Type of scoring used to compare parameter combinations
 acc_scorer = make_scorer(explained_variance_score)
 # Run the grid search
