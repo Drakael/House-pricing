@@ -626,11 +626,12 @@ mappings['Utilities'] = {
     'type':'num_desc'
     }
 nan_NA = ['Alley','BsmtQual','BsmtCond','BsmtExposure','BsmtFinType1','BsmtFinType2','FireplaceQu','GarageType','GarageFinish','GarageQual','GarageCond','PoolQC','Fence','MiscFeature','MSZoning']
-medians = ['MasVnrArea','BsmtFinSF1','BsmtFinSF2','BsmtUnfSF','TotalBsmtSF','BsmtFullBath','BsmtHalfBath','GarageYrBlt','GarageCars','GarageArea',]
+zeros = ['MasVnrArea','BsmtFinSF1','BsmtFinSF2','BsmtUnfSF','TotalBsmtSF','BsmtFullBath','BsmtHalfBath','GarageYrBlt','GarageCars','GarageArea',]
 #zeros = ['LotFrontage','MasVnrArea','BsmtFinSF1','BsmtFinSF2','BsmtUnfSF','TotalBsmtSF','BsmtFullBath','BsmtHalfBath','GarageYrBlt','GarageCars','GarageArea',]
 def clean_lot_frontage(df):
     for i, row in df.iterrows():
-        df.at[i,'LotFrontage'] = df['LotFrontage'].median() if row['LotConfig'] != 'Inside' else 0
+        if np.isnan(row['LotFrontage']) == True:
+            df.at[i,'LotFrontage'] = df['LotFrontage'].median() if row['LotConfig'] != 'Inside' else 0
     return df
 
 def clean_nan_saletype(df):
@@ -662,7 +663,7 @@ def clean_nan_utilities(df):
     df['Utilities'] = df['Utilities'].fillna('AllPub')
     return df
 
-def clean_data(df, exclude=[], mappings={}, medians=[],all_num=False):
+def clean_data(df, mappings={}, zeros=zeros, nan_NA=nan_NA, all_num=False):
     df = clean_lot_frontage(df)
     df = clean_nan_saletype(df)
     df = clean_nan_masvnrtype(df)
@@ -687,9 +688,8 @@ def clean_data(df, exclude=[], mappings={}, medians=[],all_num=False):
                 df = df.drop(col, axis=1)
             else:
                 print('unrecognized type!!!!!!!')
-    for med in medians:
-        df[med] = df[med].map(lambda x: np.nan if x == 'NA' else x)
-        df[med] = df[med].fillna(df[med].median())
+    for zer in zeros:
+        df[zer] = df[zer].fillna(0)
         #p(col+' type',col_type)
     #df = df.fillna('NA')
     return df
@@ -754,11 +754,14 @@ select = ['OverallQual','GrLivArea','TotalBsmtSF']
 #select = ['GrLivArea','OverallQual']
 drops = ['Id','SalePrice']
 drops2 = ['Id','MiscFeature','MoSold','LowQualFinSF','3SsnPorch','MSSubClass','PoolArea','MiscVal','Utilities','YrSold','Alley','LotFrontage','Condition2']
+drops2 = ['Id','MiscFeature','MoSold','LowQualFinSF','3SsnPorch','MSSubClass','PoolArea','MiscVal','Utilities','YrSold','Alley','Condition2']
 
 
-train = clean_data(train, mappings=mappings, medians=medians)#, all_num=True)
-test = clean_data(test, mappings=mappings, medians=medians)
+
+train = clean_data(train, mappings=mappings, zeros=zeros, nan_NA=nan_NA)#, all_num=True)
+test = clean_data(test, mappings=mappings, zeros=zeros, nan_NA=nan_NA)
 #sub = clean_data(sub, mappings=mappings, medians=medians)
+
 
 #retrait d'outliers
 train = train[train['GrLivArea'] < 4600]
@@ -768,6 +771,8 @@ train = train[train['1stFlrSF'] < 4000]
 train = train[train['SalePrice'] < 600000]
 train = train[train['TotRmsAbvGrd'] < 14]
 train = train[train['YearBuilt'] > 1895]
+
+
 #train = train[train['MasVnrArea'] < 1200]
 #train = train[train['WoodDeckSF'] < 700]
 #train = train[train['LotArea'] < 35000]
@@ -788,11 +793,15 @@ train = train[train['YearBuilt'] > 1895]
 #train = train_filtered
 
 correlations = get_correlations(train.drop(drops2,axis=1), predict_column, 'correlations après clean,')
+#correlations = get_correlations(train, predict_column, 'correlations après clean,')
 
-nb_selected_features = 80
+nb_selected_features = 66
 
-#plot_most_important(train, correlations, predict_column, 19, 72)
-#plot_scatter(train,'Neighborhood',predict_column)
+plot_most_important(train, correlations, predict_column, 19, 1)
+#plot_scatter(train,'LotFrontage',predict_column)
+
+
+#%%
 
 
 #select_visu = list(correlations.keys()[0:nb_selected_features+1])
