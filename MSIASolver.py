@@ -278,7 +278,8 @@ class LogisticRegression(MSIAClassifier):
         """
         X = self.scale(X,'std')
         self.predicted_thetas = self.gradient_descent(self.sigmoid, X, Y, self.max_iterations, self.learning_rate, max_time=max_time, tic_time=tic_time)
-        self.predicted_thetas/= np.absolute(self.predicted_thetas[:,0]).max()
+        #self.predicted_thetas/= np.absolute(self.predicted_thetas[:,0]).max()
+        self.rescale()
         return self
 
     def predict(self,X):
@@ -320,7 +321,8 @@ class LogisticRegression(MSIAClassifier):
         """Logistic Regression Cost calculation (regular)
         """
         #cout = float(np.sum(np.absolute(model(theta,X)-Y))/ self.n_samples) 
-        cout = float(np.absolute((model(theta,X)-Y)**2).mean())
+        #cout = float(np.absolute((model(theta,X)-Y)**2).mean())
+        cout = float(np.mean((model(theta,X)-Y)**2))
         return cout
 
     def randomize_model(self, theta, X, range_x, random_ratio=0.0, offsets=None):
@@ -346,7 +348,7 @@ class LogisticRegression(MSIAClassifier):
         if(len(self.predicted_thetas)==2):
             plt.figure()
             plt.plot(X, Y, 'o', label='original data')
-            x = np.linspace(-self.range_x/2,self.range_x/2,100)
+            x = np.linspace(np.min(X),np.max(X),100)
             y = []
             for var in x:
                 sig = self.sigmoid(self.predicted_thetas, var)
@@ -389,7 +391,7 @@ class MSIASolver():
         
         
         
-    def fit(self, X, Y, max_time=False):
+    def fit(self, X, Y, max_time=0):
         """Solver Fit
         """
         X = self.__format_array(X)
@@ -403,7 +405,9 @@ class MSIASolver():
         #todo: tests sur les données
         self.__choose_classifier()
         self.__clf.init_attribs_from_X(self.__X)
-        self.__clf.fit(self.__X, self.__Y, max_time or self.__max_time, self.__tic_time)
+        if (max_time == 0) and (self.__max_time != 0):
+            max_time = self.__max_time
+        self.__clf.fit(self.__X, self.__Y, max_time, self.__tic_time)
         self.__clf.plot_1_dimension(X, Y)
         
         return self
@@ -497,39 +501,32 @@ class MSIASolver():
         if class_type == 'LogisticRegression':
             self.__use_classifier = 'LogisticRegression'
             self.__clf = LogisticRegression(max_iterations=self.__max_iterations, learning_rate=self.__learning_rate)
-            for i in range(n_samples):
-                row = []
-                for j in range(n_dimensions):
-                    value = (np.random.random()-0.5)*range_x
-                    row.append(value)
-                X.append(row)
         else:
             self.__use_classifier = 'LinearRegression'
             self.__clf = LinearRegression(max_iterations=self.__max_iterations, learning_rate=self.__learning_rate)
-            degre = np.floor(np.log10(range_x))
-            if degre < 1:
-                degre = 1
-            rand_categories = []
-            for i in range(n_dimensions):
-                rand_category = np.random.randint(-1,degre)
-                rand_categories.append(rand_category)
-                #rand_offset = np.random.randint(0,degre)-((degre-1)/2)
-                rand_offset = (np.random.random()-0.5)*10**(rand_category+2)
-                rand_offsets.append(rand_offset)
-                
-            for i in range(n_samples):
-                row = []
-                for j in range(n_dimensions):
-                    value = (np.random.random()-0.5)*range_x
-                    value*=10**(rand_categories[j])
-                    value-= rand_offsets[j]
-                    row.append(value)
-                X.append(row)
+        degre = np.floor(np.log10(range_x))
+        if degre < 1:
+            degre = 1
+        rand_categories = []
+        for i in range(n_dimensions):
+            rand_category = np.random.randint(-1,degre)
+            rand_categories.append(rand_category)
+            rand_offset = (np.random.random()-0.5)*10**(rand_category+2)
+            rand_offsets.append(rand_offset)
+            
+        for i in range(n_samples):
+            row = []
+            for j in range(n_dimensions):
+                value = (np.random.random()-0.5)*range_x
+                value*=10**(rand_categories[j])
+                value-= rand_offsets[j]
+                row.append(value)
+            X.append(row)
         
         X = np.array(X)
         Y = self.__clf.randomize_model(self.__true_weights, X, range_x, self.__randomize, rand_offsets) 
-        if self.__use_classifier == 'LogisticRegression':
-            self.__true_weights/= np.absolute(self.__true_weights[:,0]).max()
+        #if self.__use_classifier == 'LogisticRegression':
+        #    self.__true_weights/= np.absolute(self.__true_weights[:,0]).max()
         return X, Y, self.__true_weights
 
 
