@@ -325,12 +325,12 @@ class MSIA_SK_Solver():
                     indices2[i] = j
                 map_array = dict(zip(unique,indices2))
                 mapping[col] = map_array
-#                print('col',col)
+                print('col',col)
 #                print('unique',unique)
 #                print('means',means)
 #                print('indices',indices)
 #                print('indices2',indices2)
-#                print('map_array',map_array)
+                print('map_array',map_array)
                 df[col] = df[col].map(map_array)
         self.feed_data(df, predict_column)
         return df, mapping
@@ -466,12 +466,14 @@ class MSIA_SK_Solver():
                       #'min_samples_leaf': [1,2,5]
                      }
         self.estimator_params['GradientBoostingRegressor'] = {
-                'n_estimators': [100, 150,300],
-                      'loss': ['ls', 'lad','huber','quantile'],
+                'n_estimators': [150],
+                      #'loss': ['ls', 'lad','huber','quantile'],
                       #'criterion': ['mse', 'mae'],
-                      #'max_depth': [None, 8, 32, 64],
-                      #'min_samples_split': [0.1, 0.2, 0.5, 0.7, 1.0],
-                      #'min_samples_leaf': [1,2,5]
+                      #'max_depth': [None, 3, 5, 8],
+                      #'min_samples_split': [0.2, 0.5, 0.9, 1.0],
+                      #'min_samples_leaf': [1, 2, 3, 5],
+                      #'learning_rate': [0.05, 0.1, 0.2, 0.3, 0.5],
+                      #'alpha': [0.5, 0.7, 0.9, 1.0, 1.5]
                      }
 
     def set_logistic_regressors(self):
@@ -530,8 +532,9 @@ class MSIA_SK_Solver():
         self.best_estimator_name = estimator.__class__.__name__
         self.best_score = 0
         self.estimator_results = pd.DataFrame(index=range(1), columns=['name','score'])
-        self.run_kfold(estimator, estimator.__class__.__name__)
+        mean_outcome, std_outcome = self.run_kfold(estimator, estimator.__class__.__name__)
         self.fit_best(test_ratio)
+        return self.accuracy, mean_outcome, std_outcome
         
     def fit_all(self):
         self.detect_problem_type()
@@ -582,6 +585,7 @@ class MSIA_SK_Solver():
             self.best_estimator_name = name
         self.estimator_results.at[idx,'name'] = name
         self.estimator_results.at[idx,'score'] = mean_outcome
+        return mean_outcome, std_outcome
         
     def fit_best(self, test_ratio=0.1):
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.X, self.Y, test_size=test_ratio, random_state=0)
@@ -599,13 +603,14 @@ class MSIA_SK_Solver():
         grid_obj = grid_obj.fit(self.X_train, self.y_train)
         # Set the estimator to the best combination of parameters
         self.best_estimator = grid_obj.best_estimator_
+        #p('self.best_estimator',self.best_estimator)
         # Fit the best algorithm to the data.
         self.best_estimator.fit(self.X_train, self.y_train)
         #création des prédictions pour la validation intermédiaire
         predictions = self.best_estimator.predict(self.X_test)
         self.accuracy = explained_variance_score(self.y_test, predictions)
-        print("\n",'Accuracy on test set = ', self.accuracy)
-        self.best_feats()
+        print('Accuracy on test set = ', self.accuracy,"\n\n")
+        #self.best_feats()
         return self
     
     def predict(self):

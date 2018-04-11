@@ -493,27 +493,27 @@ mappings['Neighborhood'] = {
         'NridgHt':'Northridge Heights',
         'StoneBr':'Stone Brook',
         'Timber':'Timberland',
-        'Somerst':'Somerset',
         'Veenker':'Veenker',
-        'CollgCr':'College Creek',
+        'Somerst':'Somerset',
+        'ClearCr':'Clear Creek',
         'Crawfor':'Crawford',
+        'CollgCr':'College Creek',
+        'Blmngtn':'Bloomington Heights',
         'Gilbert':'Gilbert',
         'NWAmes':'Northwest Ames',
-        'Blmngtn':'Bloomington Heights',
-        'ClearCr':'Clear Creek',
         'SawyerW':'Sawyer West',
-        'NAmes':'North Ames',
-        'Edwards':'Edwards',
         'Mitchel':'Mitchell',
-        'BrkSide':'Brookside',
-        'SWISU':'South & West of Iowa State University',
+        'NAmes':'North Ames',
         'NPkVill':'Northpark Villa',
+        'SWISU':'South & West of Iowa State University',
+        'Blueste':'Bluestem',
         'Sawyer':'Sawyer',
         'OldTown':'Old Town',
+        'Edwards':'Edwards',
+        'BrkSide':'Brookside',
+        'BrDale':'Briardale',
         'IDOTRR':'Iowa DOT and Rail Road',
-        'MeadowV':'Meadow Village',
-        'Blueste':'Bluestem',
-        'BrDale':'Briardale'
+        'MeadowV':'Meadow Village'
         },
     'type':'num'
     }
@@ -605,28 +605,48 @@ test = clean_data(test)
 
 #train, mapping = solver.auto_clean(train, predict_column)
 
+
+
 train = solver.map_clean2(train, mappings)
 test = solver.map_clean2(test, mappings)
 
 #retrait d'outliers
 train = train[train['GrLivArea'] < 4600]
 train = train[train['GarageArea'] < 1200]
-train = train[train['TotalBsmtSF'] < 6000]
-train = train[train['1stFlrSF'] < 4000]
+##train = train[train['TotalBsmtSF'] < 6000]
+##train = train[train['1stFlrSF'] < 4000]
 train = train[train['SalePrice'] < 600000]
 train = train[train['TotRmsAbvGrd'] < 14]
 train = train[train['YearBuilt'] > 1895]
+
 
 #p('train',train)
 #solver.null_report(train)
 
 #solver.fit_all().fit_best()
 
-for i in range(50,79):
+#solver.feed_data(train, predict_column, 78, 'Id')
+#acc, mean, std = solver.fit(GradientBoostingRegressor(),0.1)
+
+
+#%%
+
+train_accuracy = []
+mean_outcome = []
+std_outcome = []
+for i in range(53,58):
     solver.feed_data(train, predict_column, i, 'Id')
-    solver.fit(GradientBoostingRegressor(),0.1)
+    acc, mean, std = solver.fit(GradientBoostingRegressor())
+    train_accuracy.append(acc)
+    mean_outcome.append(mean)
+    std_outcome.append(std)
     solver.dump_result(test, 'test_output_dump_'+str(i)+'_'+"{0:.6f}".format(solver.accuracy)+'.csv')
-    
+  
+plt.figure()    
+plt.plot(train_accuracy, color='blue')
+plt.plot(mean_outcome, color='red')
+plt.plot(std_outcome, color='green')
+plt.show()
     
     
 #solver.feed_data(train, predict_column, 65, 'Id')
