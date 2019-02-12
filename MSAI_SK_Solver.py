@@ -283,7 +283,8 @@ class MSAI_SK_Solver():
         if corr is None:
             corr = df.corr()
             corr = corr[axis].abs().sort_values(ascending=False)
-        for i in range(start, start + nb):
+        print('len(corr.keys())', len(corr.keys()))
+        for i in range(start, min(start + nb, len(corr.keys()))):
             self.plot_scatter(df, corr.keys()[i], axis)
 
     def first_analysis(self, df=None, predict_column=None):
@@ -307,6 +308,7 @@ class MSAI_SK_Solver():
             self.id_col = id_col
         self.Y = df[predict_column].copy()
         self.X = df.drop(predict_column, axis=1).copy()
+        self.predict_column = predict_column
         self.n_dimensions = self.X.shape[1]
         self.n_samples = df.shape[0]
         self.columns = df.columns
@@ -393,7 +395,8 @@ class MSAI_SK_Solver():
         if self.problem_type is None:
             self.problem_type = 'linear'
             min_ = self.Y.min(axis=0)
-            if (self.Y.dtype == 'int32' or self.Y.dtype == 'int64' or self.Y.dtype == 'bool') and min_ >= 0:
+            if (self.Y.dtype == 'int32' or self.Y.dtype == 'int64'
+                    or self.Y.dtype == 'bool') and min_ >= 0:
                 unique = np.unique(self.Y.astype(float))
                 if len(unique) < 10:
                     test = True
@@ -430,79 +433,79 @@ class MSAI_SK_Solver():
         ]
         self.estimator_params = {}
         self.estimator_params['LinearRegression'] = {
-                      'fit_intercept': [False, True],
-                      'normalize': [False, True],
-                      'n_jobs': [1, 2, 3, 4]
-                     }
+            'fit_intercept': [False, True],
+            'normalize': [False, True],
+            'n_jobs': [1, 2, 3, 4]
+        }
         self.estimator_params['Ridge'] = {
-                      'alpha': [1, 3, 6, 10],
-                      'fit_intercept': [False, True],
-                      'normalize': [False, True]
-                     }
+            'alpha': [1, 3, 6, 10],
+            'fit_intercept': [False, True],
+            'normalize': [False, True]
+        }
         self.estimator_params['Lasso'] = {
-                      'alpha': [1, 3, 6, 10],
-                      'fit_intercept': [False, True],
-                      'normalize': [False, True],
-                      'precompute': [False, True]
-                     }
+            'alpha': [1, 3, 6, 10],
+            'fit_intercept': [False, True],
+            'normalize': [False, True],
+            'precompute': [False, True]
+        }
         self.estimator_params['Lars'] = {
-                      'fit_intercept': [False, True],
-                      'verbose': [1, 3, 6, 10],
-                      'normalize': [False, True],
-                      'precompute': [False, True]
-                     }
+            'fit_intercept': [False, True],
+            'verbose': [1, 3, 6, 10],
+            'normalize': [False, True],
+            'precompute': [False, True]
+        }
         self.estimator_params['LassoLars'] = {
-                      'alpha': [1, 3, 6, 10],
-                      'fit_intercept': [False, True],
-                      'verbose': [1, 3, 6, 10],
-                      'normalize': [False, True],
-                      'precompute': [False, True]
-                     }
+            'alpha': [1, 3, 6, 10],
+            'fit_intercept': [False, True],
+            'verbose': [1, 3, 6, 10],
+            'normalize': [False, True],
+            'precompute': [False, True]
+        }
         self.estimator_params['OrthogonalMatchingPursuit'] = {
-                      'n_nonzero_coefs': [1, 3, 6, 10],
-                      'fit_intercept': [False, True],
-                      'normalize': [False, True],
-                      'precompute': [False, True]
-                     }
+            'n_nonzero_coefs': [1, 3, 6, 10],
+            'fit_intercept': [False, True],
+            'normalize': [False, True],
+            'precompute': [False, True]
+        }
         self.estimator_params['BayesianRidge'] = {
-                      'alpha': [0.0000001, 0.00001, 0.001, 0.1],
-                      'fit_intercept': [False, True],
-                      'normalize': [False, True],
-                      'precompute': [False, True]
-                     }
+            'alpha': [0.0000001, 0.00001, 0.001, 0.1],
+            'fit_intercept': [False, True],
+            'normalize': [False, True],
+            'precompute': [False, True]
+        }
         self.estimator_params['SGDRegressor'] = {
-                      'alpha': [0.0000001, 0.00001, 0.001, 0.1],
-                      'penalty': ['none', 'l2', 'l1', 'elasticnet'],
-                      'fit_intercept': [False, True]
-                     }
+            'alpha': [0.0000001, 0.00001, 0.001, 0.1],
+            'penalty': ['none', 'l2', 'l1', 'elasticnet'],
+            'fit_intercept': [False, True]
+        }
         self.estimator_params['HuberRegressor'] = {
-                      'alpha': [0.0000001, 0.00001, 0.001, 0.1],
-                      'epsilon': [1, 1.35, 2, 5],
-                      'fit_intercept': [False, True]
-                     }
+            'alpha': [0.0000001, 0.00001, 0.001, 0.1],
+            'epsilon': [1, 1.35, 2, 5],
+            'fit_intercept': [False, True]
+        }
         self.estimator_params['HuberRegressor'] = {
-                      'alpha': [0.0000001, 0.00001, 0.001, 0.1],
-                      'epsilon': [1, 1.35, 2, 5],
-                      'fit_intercept': [False, True]
-                     }
+            'alpha': [0.0000001, 0.00001, 0.001, 0.1],
+            'epsilon': [1, 1.35, 2, 5],
+            'fit_intercept': [False, True]
+        }
         self.estimator_params['RandomForestRegressor'] = {
-                'n_estimators': [60, 100, 150],
-                      'max_features': ['log2', 'sqrt','auto'],
-                      'criterion': ['mse', 'mae'],
-                      # 'max_depth': [None, 8, 32, 64],
-                      # 'min_samples_split': [0.1, 0.2, 0.5, 0.7, 1.0],
-                      # 'min_samples_leaf': [1,2,5]
-                     }
+            'n_estimators': [60, 100, 150],
+            'max_features': ['log2', 'sqrt','auto'],
+            'criterion': ['mse', 'mae'],
+            # 'max_depth': [None, 8, 32, 64],
+            # 'min_samples_split': [0.1, 0.2, 0.5, 0.7, 1.0],
+            # 'min_samples_leaf': [1,2,5]
+        }
         self.estimator_params['GradientBoostingRegressor'] = {
-                'n_estimators': [150],
-                      # 'loss': ['ls', 'lad','huber','quantile'],
-                      # 'criterion': ['mse', 'mae'],
-                      # 'max_depth': [None, 3, 5, 8],
-                      # 'min_samples_split': [0.2, 0.5, 0.9, 1.0],
-                      # 'min_samples_leaf': [1, 2, 3, 5],
-                      # 'learning_rate': [0.05, 0.1, 0.2, 0.3, 0.5],
-                      # 'alpha': [0.5, 0.7, 0.9, 1.0, 1.5]
-                     }
+            'n_estimators': [150],
+            # 'loss': ['ls', 'lad','huber','quantile'],
+            # 'criterion': ['mse', 'mae'],
+            # 'max_depth': [None, 3, 5, 8],
+            # 'min_samples_split': [0.2, 0.5, 0.9, 1.0],
+            # 'min_samples_leaf': [1, 2, 3, 5],
+            # 'learning_rate': [0.05, 0.1, 0.2, 0.3, 0.5],
+            # 'alpha': [0.5, 0.7, 0.9, 1.0, 1.5]
+        }
 
     def set_logistic_regressors(self):
         rng = np.random.randint(100)
@@ -517,45 +520,47 @@ class MSAI_SK_Solver():
             SVC(gamma=2, C=1),
             SVC(gamma=3, C=3),
             GaussianProcessClassifier(1.0 * RBF(1.0)),
-            RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1),
+            RandomForestClassifier(max_depth=5, n_estimators=10,
+                                   max_features=1),
             AdaBoostClassifier(),
             ExtraTreesClassifier(n_estimators=250, random_state=rng),
             IsolationForest(max_samples=100, random_state=rng)
         ]
         self.estimator_params = {}
         self.estimator_params['Logistic Regression'] = {
-                      'C': [1, 3, 6, 10],
-                      'dual': [False],
-                      'penalty': ['l2'],
-                      'fit_intercept': [False, True],
-                      'solver': ['newton-cg', 'lbfgs', 'liblinear', 'sag', 'saga']
-                     }
+            'C': [1, 3, 6, 10],
+            'dual': [False],
+            'penalty': ['l2'],
+            'fit_intercept': [False, True],
+            'solver': ['newton-cg', 'lbfgs', 'liblinear', 'sag', 'saga']
+        }
         self.estimator_params['GaussianProcessClassifier'] = {
-                      'n_restarts_optimizer': [0, 1, 2],
-                      'warm_start': [False, True],
-                      'random_state': [None, 2]
-                     }
+            'n_restarts_optimizer': [0, 1, 2],
+            'warm_start': [False, True],
+            'random_state': [None, 2]
+        }
         self.estimator_params['RandomForestClassifier'] = {
-                      'n_estimators': [4, 6, 9],
-                      'max_features': ['log2', 'sqrt','auto'],
-                      'criterion': ['entropy', 'gini'],
-                      'max_depth': [2, 3, 5, 10],
-                      'min_samples_split': [2, 3, 5],
-                      'min_samples_leaf': [1, 5, 8]
-                     }
+            'n_estimators': [4, 6, 9],
+            'max_features': ['log2', 'sqrt', 'auto'],
+            'criterion': ['entropy', 'gini'],
+            'max_depth': [2, 3, 5, 10],
+            'min_samples_split': [2, 3, 5],
+            'min_samples_leaf': [1, 5, 8]
+        }
         self.estimator_params['AdaBoostClassifier'] = {
-                      'n_estimators': [50, 25, 125],
-                      'learning_rate': [0.5, 1, 2],
-                      'algorithm': ['SAMME', 'SAMME.R'],
-                      'random_state': [None, 2]
-                     }
+            'n_estimators': [50, 25, 125],
+            'learning_rate': [0.5, 1, 2],
+            'algorithm': ['SAMME', 'SAMME.R'],
+            'random_state': [None, 2]
+        }
         self.estimator_params['ExtraTreesClassifier'] = {
-                      'n_estimators': [50, 150, 250],
-                      'criterion': ['gini', 'entropy']
-                     }
-#        self.estimator_params['MSIASolver'] = {'max_iterations': [500, 2500, 5000],
-#                      'learning_rate': [0.3,0.4,0.5]
-#                     }
+            'n_estimators': [50, 150, 250],
+            'criterion': ['gini', 'entropy']
+        }
+        # self.estimator_params['MSIASolver'] = {
+        #     'max_iterations': [500, 2500, 5000],
+        #     'learning_rate': [0.3, 0.4, 0.5]
+        # }
 
     def fit(self, estimator, test_ratio=0.1):
         self.detect_problem_type()
@@ -642,7 +647,7 @@ class MSAI_SK_Solver():
         self.X_train = self.scaler.transform(self.X_train)
         self.X_test = self.scaler.transform(self.X_test)
         # X_train_columns = X_kaggle.columns
-        # X_kaggle = self.scaler.transform(X_kaggle)  
+        # X_kaggle = self.scaler.transform(X_kaggle)
 
         grid_obj = grid_obj.fit(self.X_train, self.y_train)
         # Set the estimator to the best combination of parameters
@@ -662,21 +667,25 @@ class MSAI_SK_Solver():
 
     def best_feats(self):
         X_train_columns = self.X.columns
-        if hasattr(self.best_estimator, 'feature_importances_') and hasattr(self.best_estimator, 'estimators_'):
+        if hasattr(self.best_estimator, 'feature_importances_') and \
+                hasattr(self.best_estimator, 'estimators_'):
             importances = self.best_estimator.feature_importances_
             # print('importances',"\n",importances)
             indices = np.argsort(importances)[::-1]
             # Print the feature ranking
             print("\n", "Feature ranking:")
             for f in range(self.n_dimensions - 1):
-                print("%d. %s (%f)" % (f + 1, X_train_columns[indices[f]], importances[indices[f]]))
+                print("%d. %s (%f)" % (f + 1, X_train_columns[indices[f]],
+                      importances[indices[f]]))
 
             # Plot the feature importances of the forest
             plt.figure()
             plt.title("Feature importances")
             color = 'b'
-            if hasattr(self.best_estimator.estimators_[0], 'feature_importances_'):
-                std = np.std([tree.feature_importances_ for tree in self.best_estimator.estimators_], axis=0)
+            if hasattr(self.best_estimator.estimators_[0],
+                       'feature_importances_'):
+                std = np.std([tree.feature_importances_ for tree
+                              in self.best_estimator.estimators_], axis=0)
                 plt.bar(range(self.n_dimensions), importances[indices],
                         color=color, yerr=std[indices], align="center")
             else:
@@ -689,16 +698,19 @@ class MSAI_SK_Solver():
 
         if hasattr(self.best_estimator, 'coef_'):
             importances = self.best_estimator.coef_
-            print('importances', type(importances), importances.shape, importances)
+            print('importances', type(importances), importances.shape,
+                  importances)
             indices = np.argsort(importances)[::-1]
             for f in range(len(X_train_columns)):
-                print("%d. %s (%f)" % (f + 1, X_train_columns[indices[0, f]], importances[0, indices[0, f]]))
+                print("%d. %s (%f)" % (f + 1, X_train_columns[indices[0, f]],
+                      importances[0, indices[0, f]]))
 
             # Plot the feature importances of the forest
             plt.figure()
             plt.title("Feature importances (relative)")
-            # plt.bar(range(self.n_dimensions), importances[indices], color="r", yerr=std[indices], align="center")
-            plt.bar(range(self.n_dimensions), importances[0,indices[0]],
+            # plt.bar(range(self.n_dimensions), importances[indices],
+            #         color="r", yerr=std[indices], align="center")
+            plt.bar(range(self.n_dimensions), importances[0, indices[0]],
                     color="b", align="center")
             plt.xticks(range(self.n_dimensions), X_train_columns[indices[0]],
                        rotation=45)
@@ -712,7 +724,8 @@ class MSAI_SK_Solver():
             importances = np.array([list(df_abs_sorted[0])])
             plt.figure()
             plt.title("Feature importances (absolute)")
-            # plt.bar(range(X_train.shape[1]), importances[indices], color="r", yerr=std[indices], align="center")
+            # plt.bar(range(X_train.shape[1]), importances[indices],
+            #         color="r", yerr=std[indices], align="center")
             plt.bar(range(self.n_dimensions), importances[0, :],
                     color="b", align="center")
             plt.xticks(range(self.n_dimensions),
@@ -722,6 +735,7 @@ class MSAI_SK_Solver():
 
     def dump_result(self, X_predict, file_name='dump.csv'):
         self.X_predict = X_predict[self.select]
+        self.X_predict = self.scaler.transform(self.X_predict)
         self.Id_test = X_predict[self.id_col]
         predictions = self.best_estimator.predict(self.X_predict)
         output = pd.DataFrame({self.id_col: self.Id_test,

@@ -623,6 +623,7 @@ mappings['Utilities'] = {
 train = clean_data(train)
 test = clean_data(test)
 
+print('len(train)', len(train))
 # solver.null_report(train)
 
 # train, mapping = solver.auto_clean(train, predict_column)
@@ -653,11 +654,11 @@ mean_outcome = []
 std_outcome = []
 for i in range(53, 58):
     solver.feed_data(train, predict_column, i, 'Id')
-    acc, mean, std = solver.fit(GradientBoostingRegressor())
+    acc, mean, std = solver.fit(GradientBoostingRegressor(loss='ls'))
     train_accuracy.append(acc)
     mean_outcome.append(mean)
     std_outcome.append(std)
-    # solver.dump_result(test, 'test_output_dump_'+str(i)+'_'+"{0:.6f}".format(solver.accuracy)+'.csv')
+    solver.dump_result(test, 'test_output_dump_'+str(i)+'_'+"{0:.6f}".format(solver.accuracy)+'.csv')
 
 plt.figure()
 plt.plot(train_accuracy, color='blue')
