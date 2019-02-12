@@ -623,7 +623,7 @@ mappings['Utilities'] = {
 train = clean_data(train)
 test = clean_data(test)
 
-solver.null_report(train)
+# solver.null_report(train)
 
 # train, mapping = solver.auto_clean(train, predict_column)
 
